@@ -79,14 +79,13 @@ class SalesPredictor:
                     temp_dict[key] = 0 
                 elif value == "TRUE":
                     temp_dict[key] = 1
-
             else:
                 temp_dict[key] = float(value)
  
         results = []
         for key in keys:
+            if key in {"m1", "m2", "m3", "m4", "m5"}:continue
             results.append(temp_dict.get(key))
-
         return results
 
     def load_sample_data(self):
@@ -107,14 +106,11 @@ class SalesPredictor:
         print self.regr.coef_      
 
     def test(self):
-        test_X = numpy.array(self.training_data[self.cutoff:])
-        target_X = numpy.array(self.target_values[self.cutoff:])
-        predicted_X  = self.regr.predict(test_X)
-        print predicted_X     
-        print target_X
-        score = self.regr.score(test_X, target_X)
+        self.test_X = numpy.array(self.training_data[self.cutoff:])
+        self.target_X = numpy.array(self.target_values[self.cutoff:])
+        self.predicted_X  = self.regr.predict(self.test_X)
+        score = self.regr.score(self.test_X, self.target_X)
         print score
-        
 
 if __name__ == "__main__":
     sp_obj = SalesPredictor()
