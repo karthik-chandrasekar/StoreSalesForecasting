@@ -11,9 +11,28 @@ class SalesPredictor:
 
     def run_main(self):
         self.load_data()
+
+        #Least squares
+        print "Linear Squares Method"
+        self.regr = linear_model.LinearRegression()
         self.train()
         self.test()
 
+        #SGD
+        print "SGD"
+        self.regr = linear_model.SGDRegressor()
+        self.patch_target_data()
+        self.train()
+        self.test() 
+
+        #Bayesian Ridge Regression
+        print "Bayesian Ridge Regression"
+        self.regr = linear_model.BayesianRidge()
+        self.train()
+        self.test() 
+        
+        
+        
     def load_data(self):
         self.load_features_data()
         self.load_train_data()
@@ -60,7 +79,6 @@ class SalesPredictor:
             self.training_data.append(data)
             self.target_values.append([float(value)])        
    
- 
     def normalize_data(self):
         self.get_max_min()
         self.get_normalized_data()
@@ -162,12 +180,10 @@ class SalesPredictor:
         self.x_data_date = [[x] for x in range(len(self.y_data_sales))]
 
     def train(self):
-        self.regr = linear_model.LinearRegression()
-        self.cutoff = int(len(self.training_data) * 0.75)
+        self.cutoff = int(len(self.training_data) * 0.85)
         X = numpy.array(self.training_data[:self.cutoff])
         Y = numpy.array(self.target_values[:self.cutoff])
         self.regr.fit(X, Y)
-        print self.regr.coef_      
 
     def test(self):
         self.test_X = numpy.array(self.training_data[self.cutoff:])
@@ -175,6 +191,10 @@ class SalesPredictor:
         self.predicted_X  = self.regr.predict(self.test_X)
         score = self.regr.score(self.test_X, self.target_X)
         print score
+
+    def patch_target_data(self):
+        new_target_values = [x[0] for x in self.target_values]
+        self.target_values = new_target_values
 
 if __name__ == "__main__":
     sp_obj = SalesPredictor()
