@@ -12,7 +12,7 @@ class SalesPredictor:
     def run_main(self):
         self.load_data()
         self.train()
-        #self.test()
+        self.test()
 
     def load_data(self):
         self.load_features_data()
@@ -81,7 +81,6 @@ class SalesPredictor:
                     temp_dict[key] = 1
 
             else:
-                print value
                 temp_dict[key] = float(value)
  
         results = []
@@ -100,11 +99,22 @@ class SalesPredictor:
         self.x_data_date = [[x] for x in range(len(self.y_data_sales))]
 
     def train(self):
-        regr = linear_model.LinearRegression()
-        X = numpy.array(self.training_data)
-        Y = numpy.array(self.target_values)
-        regr.fit(X, Y)
-        print regr.coef_      
+        self.regr = linear_model.LinearRegression()
+        self.cutoff = int(len(self.training_data) * 0.75)
+        X = numpy.array(self.training_data[:self.cutoff])
+        Y = numpy.array(self.target_values[:self.cutoff])
+        self.regr.fit(X, Y)
+        print self.regr.coef_      
+
+    def test(self):
+        test_X = numpy.array(self.training_data[self.cutoff:])
+        target_X = numpy.array(self.target_values[self.cutoff:])
+        predicted_X  = self.regr.predict(test_X)
+        print predicted_X     
+        print target_X
+        score = self.regr.score(test_X, target_X)
+        print score
+        
 
 if __name__ == "__main__":
     sp_obj = SalesPredictor()
