@@ -18,6 +18,7 @@ class SalesPredictor:
         self.load_features_data()
         self.load_train_data()
         self.merge_data()
+        self.normalize_data()
 
     def load_features_data(self):
         self.features_dict = {}
@@ -60,6 +61,68 @@ class SalesPredictor:
             self.target_values.append([float(value)])        
    
  
+    def normalize_data(self):
+        self.get_max_min()
+        self.get_normalized_data()
+
+    def get_max_min(self):
+        #result - temp, fuel, cpi, ue, hol
+        self.temp_max = self.temp_min = 0
+        self.fuel_max = self.fuel_min = 0
+        self.cpi_max = self.cpi_min = 0
+        self.ue_max = self.ue_min = 0
+        self.hol_max = self.hol_min = 0
+
+        for result in self.training_data:
+            temp, fuel, cpi, ue, hol = result
+            
+            if temp > self.temp_max:self.temp_max = temp
+            elif temp <= self.temp_min:self.temp_min =temp
+
+            if fuel > self.fuel_max:self.fuel_max = fuel
+            elif fuel <= self.fuel_min:self.fuel_min = fuel
+        
+            if cpi > self.cpi_max:self.cpi_max = cpi
+            elif cpi <= self.cpi_min:self.cpi_min = cpi
+
+            if ue > self.ue_max:self.ue_max = ue
+            elif ue <= self.ue_min:self.ue_min = ue
+
+            if hol > self.hol_max:self.hol_max = hol
+            elif hol <= self.hol_min:self.hol_min = hol
+
+
+    def get_normalized_data(self):
+        norm_training_data = []           
+
+        for result in self.training_data:
+            temp, fuel, cpi, ue, hol = result
+
+            temp = self.get_norm_temp(temp)
+            fuel = self.get_norm_fuel(fuel)
+            cpi = self.get_norm_cpi(cpi)
+            ue = self.get_norm_ue(ue)
+            hol = self.get_norm_hol(hol)
+
+            norm_training_data.append([temp, fuel, cpi, ue, hol])
+        
+        self.training_data = norm_training_data        
+
+    def get_norm_temp(self, temp):
+        return (float)(temp - self.temp_min)/(self.temp_max - self.temp_min)
+
+    def get_norm_fuel(self, fuel):
+        return (float)(fuel - self.fuel_min)/(self.fuel_max - self.fuel_min)
+
+    def get_norm_cpi(self, cpi):
+        return (float)(cpi - self.cpi_min)/(self.cpi_max - self.cpi_min)
+
+    def get_norm_ue(self, ue):
+        return (float)(ue - self.ue_min)/(self.ue_max - self.ue_min)
+
+    def get_norm_hol(self, hol):
+        return (float)(hol - self.hol_min)/(self.hol_max - self.hol_min)
+
     def make_numeric(self, data):
         if not data:return None
         #value = (Temperature,Fuel_Price,MarkDown1,MarkDown2,MarkDown3,MarkDown4,MarkDown5,CPI,Unemployment,IsHoliday)
@@ -86,6 +149,7 @@ class SalesPredictor:
         for key in keys:
             if key in {"m1", "m2", "m3", "m4", "m5"}:continue
             results.append(temp_dict.get(key))
+        #results - temp, fuel, cpi, ue, hol
         return results
 
     def load_sample_data(self):
